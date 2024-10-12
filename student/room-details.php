@@ -3,6 +3,14 @@
     include('../includes/dbconn.php');
     include('../includes/check-login.php');
     check_login();
+
+
+    $student_id = $_SESSION['id']; // Assuming student ID is stored in session
+    $query = "SELECT year, status, tran_id, date, remarks FROM fees_payment WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('i', $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -72,159 +80,52 @@
             <!-- Container fluid  -->
             <!-- ============================================================== -->
             <div class="container-fluid">
-                
-                <div class="col-7 align-self-center">
-                        <h4 class="page-title text-truncate text-dark font-weight-medium mb-1">Details About My Booked Room</h4>
-                </div>
-
-
-
-                <!--Table Column -->
-                
-                 <div class="card">
-                 
-                   <div class="card-body">
-                   
-                      <div class="row">
-                      
-                      <div class="table-responsive">
-                                    <table id="zctb" class="table table-striped table-bordered no-wrap">
-
+            <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Fees Details</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Year</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Transaction ID</th>
+                                                <th>Remarks</th>
+                                                <th>Receipt</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
-
-                                        <?php	
-                                        $aid=$_SESSION['login'];
-                                        $ret="SELECT * from registration where emailid=?";
-                                        $stmt= $mysqli->prepare($ret) ;
-                                        $stmt->bind_param('s',$aid);
-                                        $stmt->execute() ;
-                                        $res=$stmt->get_result();
-                                        $cnt=1;
-                                        while($row=$res->fetch_object())
-                                            {
-                                                ?>
-
-                                            <tr>
-                                                <td colspan="3"><b>Date & Time of Registration: <?php echo $row->postingDate;?></b></td>
-                                                
-                                            </tr>
-
-                                            <tr>
-
-                                            <td><b>Room no :</b></td>
-                                            <td><?php echo $row->roomno;?></td>
-
-                                            <td><b>Starting Date :</b></td>
-                                            <td><?php echo $row->stayfrom;?></td>
-
-                                            <td><b>Seater :</b></td>
-                                            <td><?php echo $row->seater;?></td>
-                                            <!-- By CodeAstro - codeastro.com -->
-
-                                            </tr>
-
-                                            <tr>
-
-                                            <td><b>Duration:</b></td>
-                                            <td><?php echo $dr=$row->duration;?> Months</td>
-
-                                            <td><b>Food Status:</b></td>
-                                            <td>
-                                            <?php if($row->foodstatus==0){
-                                            echo "Not Required";
-                                            } else {
-                                            echo "Required";
-                                            }
-                                            ;?> </td>
-
-                                            <td><b>Fees Per Month :</b></td>
-                                            <td>$<?php echo $fpm=$row->feespm;?></td>
-
-                                            
-
-                                            </tr>
-
-                                            <tr>
-                                            <td colspan="6"><b>Total Fees (<?php echo ($dr).' months'?>) : 
-                                            <?php if($row->foodstatus==1){ 
-                                            $fd=211; 
-                                            echo '$'.(($fd+$fpm)*$dr);
-                                            } else {
-                                            echo '$'.$dr*$fpm;
-                                            }
-                                            ?></b></td>
-                                            </tr>
-
-
-                                            <tr>
-                                            <td><b>Registration Number :</b></td>
-                                            <td><?php echo $row->regno;?></td>
-                                            <td><b>Full Name :</b></td>
-                                            <td><?php echo $row->firstName;?> <?php echo $row->middleName;?> <?php echo $row->lastName;?></td>
-                                            <td><b>Email Address:</b></td>
-                                            <td><?php echo $row->emailid;?></td>
-                                            </tr>
-
-
-                                            <tr>
-                                            <td><b>Contact Number :</b></td>
-                                            <td><?php echo $row->contactno;?></td>
-                                            <td><b>Gender :</b></td>
-                                            <td><?php echo $row->gender;?></td>
-                                            <td><b>Selected Course :</b></td>
-                                            <td><?php echo $row->course;?></td>
-                                            </tr>
-
-
-                                            <tr>
-                                            <td><b>Emergency Contact No. :</b></td>
-                                            <td><?php echo $row->egycontactno;?></td>
-                                            <td><b>Guardian Name :</b></td>
-                                            <td><?php echo $row->guardianName;?></td>
-                                            <td><b>Guardian Relation :</b></td>
-                                            <td><?php echo $row->guardianRelation;?></td>
-                                            </tr>
-
-                                            <tr>
-                                            <td><b>Guardian Contact No. :</b></td>
-                                            <td colspan="6"><?php echo $row->guardianContactno;?></td>
-                                            </tr>
-
-                                            <tr>
-                                            <td><b>Current Address:</b></td>
-                                            <td colspan="2">
-                                            <?php echo $row->corresAddress;?><br />
-                                            <?php echo $row->corresCIty;?>, <?php echo $row->corresPincode;?><br />
-                                            <?php echo $row->corresState;?>
-
-
-                                            </td>
-                                            <td><b>Permanent Address:</b></td>
-                                            <td colspan="2">
-                                            <?php echo $row->pmntAddress;?><br />
-                                            <?php echo $row->pmntCity;?>, <?php echo $row->pmntPincode;?><br />	
-
-                                            </td>
-                                            </tr>
-
-
                                             <?php
-                                            $cnt=$cnt+1;
-                                            } ?>
-
+                                            // Fetch and display the data from the database
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<tr>";
+                                                echo "<td>" . $row['year'] . "</td>";
+                                                echo "<td>" . $row['status'] . "</td>";
+                                                echo "<td>" . $row['date'] . "</td>";
+                                                echo "<td>" . $row['tran_id'] . "</td>";
+                                                echo "<td>" . $row['remarks'] . "</td>";
+                                                // echo "<td>" . $row['receipt'] . "</td>";
+                                                echo "</tr>";
+                                            }
+                                            ?>
                                         </tbody>
                                     </table>
-                                   
                                 </div>
-                      
-                      
-                      </div>
-                   
-                   
-                   </div>
-                 
-                 
-                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                <form action="payment.php" method="POST">
+        <button type="submit" class="btn btn-primary btn-lg">Pay Now</button>
+    </form>
+                                </div>
+                
+
+
 
                 <!-- Table column end -->
 
@@ -235,10 +136,10 @@
             <!-- ============================================================== -->
             <!-- footer -->
             <!-- ============================================================== -->
-            <?php include '../includes/footer.php' ?>
             <!-- ============================================================== -->
             <!-- End footer -->
             <!-- ============================================================== -->
+            
         </div>
         <!-- ============================================================== -->
         <!-- End Page wrapper  -->
